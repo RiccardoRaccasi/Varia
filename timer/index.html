@@ -11,7 +11,8 @@
     --muted:     #6C7370;
     --line:      #DCE0D9;
     --track:     #E3E7E0;
-    --work:      #1F6F5C;
+    --seq:       #1F6F5C;
+    --par:       #4A6FA5;
     --rest:      #4A6FA5;
     --alert:     #D9480F;
     --on-accent: #FFFFFF;
@@ -26,7 +27,8 @@
       --muted:     #8D9793;
       --line:      #2C3234;
       --track:     #2A3134;
-      --work:      #4FBFA0;
+      --seq:       #4FBFA0;
+      --par:       #7FA9DC;
       --rest:      #7FA9DC;
       --alert:     #FF7A45;
       --on-accent: #10201C;
@@ -41,7 +43,8 @@
     --muted:     #8D9793;
     --line:      #2C3234;
     --track:     #2A3134;
-    --work:      #4FBFA0;
+    --seq:       #4FBFA0;
+    --par:       #7FA9DC;
     --rest:      #7FA9DC;
     --alert:     #FF7A45;
     --on-accent: #10201C;
@@ -56,230 +59,234 @@
     font-family: "Chivo", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 14px;
     line-height: 1.45;
-    padding: 24px 16px 64px;
-    display: flex;
-    justify-content: center;
+    padding: 20px 0 56px;
   }
 
-  .app { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 20px; }
-
-  /* ---- header ---- */
-  .topbar { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-  .wordmark { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
-  .wordmark span { color: var(--muted); font-weight: 400; }
+  .app { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  .gutter { padding: 0 20px; }
 
   .label {
     font-size: 10px; font-weight: 600; letter-spacing: .16em;
     text-transform: uppercase; color: var(--muted);
   }
-
-  /* ---- runner ---- */
-  .runner {
-    --phase: var(--work);
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    box-shadow: var(--shadow);
-    padding: 26px 22px 20px;
-    display: flex; flex-direction: column; align-items: center; gap: 16px;
-  }
-  .runner.is-rest  { --phase: var(--rest); }
-  .runner.is-alarm { --phase: var(--alert); }
-
-  .phase-name { font-size: 17px; font-weight: 600; text-align: center; text-wrap: balance; }
-  .phase-kind { color: var(--phase); letter-spacing: .16em; }
-
-  .dial { position: relative; width: min(250px, 68vw); aspect-ratio: 1; container-type: inline-size; }
-  .dial svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
-  .dial .track { fill: none; stroke: var(--track); stroke-width: 7; }
-  .dial .sweep {
-    fill: none; stroke: var(--phase); stroke-width: 7; stroke-linecap: round;
-    transition: stroke .25s ease;
-  }
-
-  /* The readout centres in the dial, while the digits and the tenths
-     share one baseline so the decimal never hangs below the seconds.
-     Font size tracks the dial width, stepping down as the clock grows
-     a minutes or hours field, so it always clears the ring. */
-  .readout {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .readout-row {
-    display: flex; align-items: baseline;
+  .mono {
     font-family: "Martian Mono", ui-monospace, "SFMono-Regular", monospace;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -.05em;
-    font-size: 40px;
-    font-size: 17cqw;
+    font-variant-numeric: tabular-nums; letter-spacing: -.05em;
   }
-  .readout-row.wide  { font-size: 14cqw; }
-  .readout-row.wider { font-size: 11cqw; }
-  .readout-row .whole { font-size: 1em;    font-weight: 700; line-height: 1; }
-  .readout-row .frac  { font-size: .48em;  font-weight: 400; line-height: 1; color: var(--muted); }
-  .runner.is-alarm .whole, .runner.is-alarm .frac { color: var(--alert); }
 
-  .meta { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; }
-  .meta .up-next { font-size: 12px; color: var(--muted); }
+  /* ---------- top bar ---------- */
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .wordmark { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+  .wordmark span { color: var(--muted); font-weight: 400; }
+  .topbar-acts { display: flex; align-items: center; gap: 8px; }
 
-  .controls { display: flex; gap: 8px; width: 100%; }
-
-  /* ---- buttons ---- */
+  /* ---------- buttons ---------- */
   button {
     font-family: inherit; font-size: 13px; font-weight: 600;
-    border-radius: 10px; border: 1px solid transparent;
-    padding: 11px 14px; cursor: pointer;
+    border-radius: 9px; border: 1px solid transparent;
+    padding: 9px 13px; cursor: pointer;
     transition: background .15s ease, border-color .15s ease, color .15s ease, opacity .15s ease;
   }
-  button:focus-visible { outline: 2px solid var(--phase, var(--work)); outline-offset: 2px; }
+  button:focus-visible { outline: 2px solid var(--accent, var(--seq)); outline-offset: 2px; }
   button:disabled { opacity: .35; cursor: not-allowed; }
-
-  .btn-primary { flex: 2; background: var(--phase); color: var(--on-accent); }
-  .btn-primary:hover:not(:disabled) { opacity: .87; }
-  .btn-quiet { flex: 1; background: transparent; color: var(--muted); border-color: var(--line); }
+  .btn-solid { background: var(--accent, var(--seq)); color: var(--on-accent); }
+  .btn-solid:hover:not(:disabled) { opacity: .87; }
+  .btn-quiet { background: transparent; color: var(--muted); border-color: var(--line); }
   .btn-quiet:hover:not(:disabled) { color: var(--ink); border-color: var(--muted); }
-  .btn-alarm { width: 100%; background: var(--alert); color: #FFF; font-size: 14px; padding: 14px; }
-  .btn-alarm:hover { opacity: .87; }
+  .btn-dark { background: var(--ink); color: var(--bg); }
+  .btn-dark:hover { opacity: .85; }
+  .btn-sm { padding: 6px 10px; font-size: 12px; }
 
   .icon-btn {
     background: transparent; border-color: transparent; color: var(--muted);
-    padding: 6px 8px; font-size: 13px; font-weight: 400; line-height: 1;
+    padding: 4px 7px; font-size: 12px; font-weight: 400; line-height: 1;
   }
   .icon-btn:hover:not(:disabled) { color: var(--ink); background: var(--surface-2); }
   .icon-btn.danger:hover:not(:disabled) { color: var(--alert); }
 
-  .sound-toggle {
-    background: transparent; border-color: var(--line); color: var(--muted);
-    padding: 5px 10px; font-size: 11px; font-weight: 500; letter-spacing: .04em;
-  }
+  .sound-toggle { background: transparent; border-color: var(--line); color: var(--muted); font-size: 11px; font-weight: 500; padding: 6px 11px; }
   .sound-toggle:hover { color: var(--ink); }
-  .sound-toggle[aria-pressed="true"] { color: var(--work); border-color: var(--work); }
+  .sound-toggle[aria-pressed="true"] { color: var(--seq); border-color: var(--seq); }
 
-  /* ---- library ---- */
-  .library { display: flex; flex-direction: column; gap: 10px; }
-  .library-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .library-head .total { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-
-  .seed-note { font-size: 12px; color: var(--muted); margin: -2px 0 2px; }
-
-  .stack { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-
-  .block {
-    background: var(--surface); border: 1px solid var(--line);
-    border-radius: 12px; padding: 11px 8px 11px 14px;
-    display: flex; align-items: center; gap: 10px;
+  /* ---------- alarm banner ---------- */
+  .alarms { display: flex; flex-direction: column; gap: 8px; }
+  .alarm-row {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--alert); color: #FFF;
+    border-radius: 12px; padding: 12px 12px 12px 16px;
   }
-  .block.active { border-color: var(--work); background: var(--surface-2); }
-  .block-main {
+  .alarm-row .what { flex: 1; font-weight: 600; }
+  .alarm-row button { background: rgba(255,255,255,.16); color: #FFF; border-color: rgba(255,255,255,.35); }
+  .alarm-row button:hover { background: rgba(255,255,255,.28); }
+
+  /* ---------- board ---------- */
+  .board {
+    display: flex; gap: 14px; align-items: flex-start;
+    overflow-x: auto; padding: 2px 20px 8px;
+    scroll-snap-type: x proximity;
+  }
+  .column {
+    --accent: var(--seq);
+    flex: 0 0 300px; scroll-snap-align: start;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 14px 12px 12px;
+  }
+  .column.is-parallel { --accent: var(--par); }
+  .column.is-running { border-color: var(--accent); }
+
+  .col-head { display: flex; flex-direction: column; gap: 8px; }
+  .col-title-row { display: flex; align-items: center; gap: 4px; }
+  .col-title {
+    flex: 1; min-width: 0;
+    background: none; border: none; padding: 3px 5px; border-radius: 7px;
+    font: inherit; font-size: 15px; font-weight: 600; color: inherit; text-align: left;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
+  }
+  .col-title:hover { background: var(--surface-2); color: var(--accent); }
+  .col-sub { display: flex; align-items: center; gap: 6px; padding-left: 5px; }
+  .mode-pill {
+    background: transparent; border: 1px solid var(--accent); color: var(--accent);
+    border-radius: 999px; padding: 2px 9px; font-size: 10px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .mode-pill:hover { background: var(--accent); color: var(--on-accent); }
+  .col-total { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; margin-left: auto; padding-right: 2px; }
+
+  /* ---------- sequence runner ---------- */
+  .runner {
+    background: var(--surface-2); border-radius: 12px;
+    padding: 14px 12px 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+  }
+  .runner.is-rest { --accent: var(--rest); }
+  .runner.is-done { --accent: var(--alert); }
+  .runner-kind { color: var(--accent); }
+  .runner-name { font-size: 14px; font-weight: 600; text-align: center; text-wrap: balance; line-height: 1.25; }
+
+  .dial { position: relative; width: 150px; aspect-ratio: 1; container-type: inline-size; }
+  .dial svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+  .dial .track { fill: none; stroke: var(--track); stroke-width: 8; }
+  .dial .sweep { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; transition: stroke .25s ease; }
+
+  /* Centred in the dial, with the digits and tenths sharing one
+     baseline; size steps down as the clock grows a minutes or hours
+     field so it always clears the ring. */
+  .readout { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .readout-row { display: flex; align-items: baseline; font-size: 26px; font-size: 18cqw; }
+  .readout-row.wide  { font-size: 15cqw; }
+  .readout-row.wider { font-size: 11cqw; }
+  .readout-row .whole { font-size: 1em; font-weight: 700; line-height: 1; }
+  .readout-row .frac { font-size: .48em; font-weight: 400; line-height: 1; color: var(--muted); }
+  .runner.is-done .whole, .runner.is-done .frac { color: var(--alert); }
+
+  .runner-meta { text-align: center; display: flex; flex-direction: column; gap: 2px; }
+  .runner-next { font-size: 11px; color: var(--muted); }
+  .runner-ctl { display: flex; gap: 6px; width: 100%; }
+  .runner-ctl .btn-solid { flex: 2; }
+  .runner-ctl .btn-quiet { flex: 1; }
+
+  /* ---------- timer tiles ---------- */
+  .tiles { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  .tile {
+    border: 1px solid var(--line); border-radius: 11px;
+    padding: 9px 8px 9px 10px;
+    display: flex; flex-direction: column; gap: 7px;
+  }
+  .tile.active { border-color: var(--accent); background: var(--surface-2); }
+  .tile-top { display: flex; align-items: flex-start; gap: 6px; }
+  .tile-main {
     flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px;
-    background: none; border: none; border-radius: 8px; padding: 2px 4px;
+    background: none; border: none; padding: 2px 3px; border-radius: 7px;
     font: inherit; color: inherit; text-align: left; cursor: pointer;
   }
-  .block-main:hover:not(:disabled) .block-name { color: var(--work); }
-  .block-main:disabled { opacity: 1; cursor: default; }
-  .block-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .block-spec { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .block-acts { display: flex; align-items: center; gap: 1px; flex-shrink: 0; }
+  .tile-main:hover:not(:disabled) { background: var(--surface); }
+  .tile-main:hover:not(:disabled) .tile-name { color: var(--accent); }
+  .tile-main:disabled { opacity: 1; cursor: default; }
+  .tile-name { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tile-spec { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tile-acts { display: flex; align-items: center; flex-shrink: 0; }
   .move-col { display: flex; flex-direction: column; }
-  .move-col .icon-btn { padding: 1px 6px; font-size: 10px; }
+  .move-col .icon-btn { padding: 0 5px; font-size: 9px; }
+
+  .tile-live { display: flex; flex-direction: column; gap: 6px; }
+  .live-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .live-clock { display: flex; align-items: baseline; font-size: 21px; font-weight: 700; line-height: 1; color: var(--accent); }
+  .live-clock .frac { font-size: .5em; font-weight: 400; color: var(--muted); }
+  .live-note { font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
+  .bar { height: 4px; border-radius: 999px; background: var(--track); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 999px; background: var(--accent); }
+  .tile-ctl { display: flex; gap: 6px; }
+  .tile-ctl button { flex: 1; }
 
   .empty {
-    border: 1px dashed var(--line); border-radius: 12px;
-    padding: 26px 18px; text-align: center; color: var(--muted); font-size: 13px;
+    border: 1px dashed var(--line); border-radius: 11px;
+    padding: 18px 12px; text-align: center; color: var(--muted); font-size: 12px;
   }
+  .col-foot { display: flex; gap: 6px; }
+  .col-foot .btn-quiet { flex: 1; }
 
-  .btn-new { background: var(--ink); color: var(--bg); padding: 9px 15px; }
-  .btn-new:hover { opacity: .85; }
-  .btn-runall { background: var(--work); color: var(--on-accent); width: 100%; }
-  .btn-runall:hover:not(:disabled) { opacity: .87; }
+  .add-column {
+    flex: 0 0 176px; align-self: flex-start; height: 168px;
+    border: 1px dashed var(--line); border-radius: 16px;
+    background: transparent; color: var(--muted); font-weight: 600; cursor: pointer;
+  }
+  .add-column:hover { color: var(--seq); border-color: var(--seq); }
 
-  /* ---- dialog ---- */
+  .hint-line { font-size: 12px; color: var(--muted); }
+
+  /* ---------- dialogs ---------- */
   dialog {
     border: 1px solid var(--line); border-radius: 16px; padding: 0;
     background: var(--surface); color: var(--ink);
     width: min(400px, calc(100vw - 32px)); box-shadow: var(--shadow);
   }
   dialog::backdrop { background: rgba(10,14,13,.5); }
-  .form-body { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
-  .field { display: flex; flex-direction: column; gap: 6px; }
+  .form-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
   .field > .label { color: var(--muted); }
-  input[type="text"], input[type="number"] {
+  input[type="text"], input[type="number"], select {
     font-family: inherit; font-size: 14px; color: var(--ink);
     background: var(--surface-2); border: 1px solid var(--line);
     border-radius: 9px; padding: 9px 11px; width: 100%;
   }
-  input:focus-visible { outline: 2px solid var(--work); outline-offset: 1px; }
-  .duo { display: flex; gap: 8px; align-items: flex-end; }
+  input:focus-visible, select:focus-visible { outline: 2px solid var(--seq); outline-offset: 1px; }
+  .duo { display: flex; gap: 8px; }
   .duo .field { flex: 1; }
   .unit { font-size: 11px; color: var(--muted); }
   .hint { font-size: 12px; color: var(--muted); }
-  .form-foot { display: flex; gap: 8px; padding: 0 22px 22px; }
-  .form-foot .btn-primary { --phase: var(--work); }
+  .form-foot { display: flex; gap: 8px; padding: 0 20px 20px; }
+  .form-foot button { flex: 1; }
+  .form-foot .btn-solid { --accent: var(--seq); flex: 2; }
+  .confirm-body { padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .confirm-body p { font-size: 13px; color: var(--muted); }
+  .form-foot .btn-danger { background: var(--alert); color: #FFF; flex: 2; }
+  .form-foot .btn-danger:hover { opacity: .87; }
 
-  @media (prefers-reduced-motion: reduce) {
-    * { animation: none !important; transition: none !important; }
-  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 
 <div class="app">
 
-  <div class="topbar">
-    <div class="wordmark">Interval Stack <span>— chained timers</span></div>
-    <button class="sound-toggle" id="soundBtn" aria-pressed="true">Sound on</button>
+  <div class="topbar gutter">
+    <div class="wordmark">Interval Stack <span>— stacks side by side</span></div>
+    <div class="topbar-acts">
+      <button class="sound-toggle" id="soundBtn" aria-pressed="true">Sound on</button>
+      <button class="btn-dark btn-sm" id="newColBtn">+ New stack</button>
+    </div>
   </div>
 
-  <!-- RUNNER -->
-  <section class="runner" id="runner" aria-label="Timer">
-    <div class="phase-name" id="phaseName">
-      <span class="label phase-kind" id="phaseKind">Ready</span><br>
-      <span id="blockName">No timer running</span>
-    </div>
+  <div class="alarms gutter" id="alarms" hidden></div>
 
-    <div class="dial">
-      <svg viewBox="0 0 250 250" aria-hidden="true">
-        <circle class="track" cx="125" cy="125" r="112"></circle>
-        <circle class="sweep" id="sweep" cx="125" cy="125" r="112"></circle>
-      </svg>
-      <div class="readout" role="timer" aria-live="off">
-        <div class="readout-row" id="readoutRow">
-          <span class="whole" id="whole">0:00</span><span class="frac" id="frac">.0</span>
-        </div>
-      </div>
-    </div>
+  <div class="board" id="board"></div>
 
-    <div class="meta">
-      <div class="label" id="roundLine">Total 0:00</div>
-      <div class="up-next" id="upNext">Add a timer to begin</div>
-    </div>
-
-    <div class="controls" id="controls">
-      <button class="btn-primary" id="mainBtn">Start</button>
-      <button class="btn-quiet" id="skipBtn">Skip</button>
-      <button class="btn-quiet" id="stopBtn">Stop</button>
-    </div>
-
-    <button class="btn-alarm" id="alarmBtn" hidden>Stop alarm</button>
-  </section>
-
-  <!-- LIBRARY -->
-  <section class="library">
-    <div class="library-head">
-      <div>
-        <div class="label">Timers</div>
-        <div class="total" id="totalLine">—</div>
-      </div>
-      <button class="btn-new" id="newBtn">+ New timer</button>
-    </div>
-    <p class="seed-note" id="seedNote" hidden>Starter examples — edit or delete them.</p>
-    <ul class="stack" id="stack"></ul>
-    <button class="btn-runall" id="runAllBtn">Start session</button>
-  </section>
-
+  <p class="hint-line gutter" id="hintLine"></p>
 </div>
 
-<!-- EDITOR -->
+<!-- timer editor -->
 <dialog id="editor">
-  <form method="dialog" id="form">
+  <form id="form">
     <div class="form-body">
       <div class="label" id="formTitle">New timer</div>
 
@@ -289,10 +296,15 @@
       </div>
 
       <div class="field">
-        <label class="label" for="fWorkMin">Work</label>
+        <label class="label" for="fStack">Stack</label>
+        <select id="fStack"></select>
+      </div>
+
+      <div class="field">
+        <span class="label">Work</span>
         <div class="duo">
           <div class="field">
-            <input type="number" id="fWorkMin" min="0" max="180" step="1" value="0" inputmode="numeric">
+            <input type="number" id="fWorkMin" min="0" max="600" step="1" value="0" inputmode="numeric">
             <span class="unit">minutes</span>
           </div>
           <div class="field">
@@ -303,10 +315,10 @@
       </div>
 
       <div class="field">
-        <label class="label" for="fRestMin">Rest</label>
+        <span class="label">Rest</span>
         <div class="duo">
           <div class="field">
-            <input type="number" id="fRestMin" min="0" max="180" step="1" value="0" inputmode="numeric">
+            <input type="number" id="fRestMin" min="0" max="600" step="1" value="0" inputmode="numeric">
             <span class="unit">minutes</span>
           </div>
           <div class="field">
@@ -322,50 +334,83 @@
         <span class="hint">Work then rest, repeated this many times.</span>
       </div>
     </div>
-
     <div class="form-foot">
       <button type="button" class="btn-quiet" id="cancelBtn">Cancel</button>
-      <button type="submit" class="btn-primary" id="saveBtn">Add timer</button>
+      <button type="submit" class="btn-solid" id="saveBtn">Add timer</button>
     </div>
   </form>
+</dialog>
+
+<!-- rename stack -->
+<dialog id="renamer">
+  <form id="renameForm">
+    <div class="form-body">
+      <div class="label">Rename stack</div>
+      <div class="field">
+        <label class="label" for="rName">Name</label>
+        <input type="text" id="rName" maxlength="30" required>
+      </div>
+    </div>
+    <div class="form-foot">
+      <button type="button" class="btn-quiet" id="renameCancel">Cancel</button>
+      <button type="submit" class="btn-solid">Save name</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- confirm -->
+<dialog id="confirmer">
+  <div class="confirm-body">
+    <div class="label" id="confirmTitle">Delete stack</div>
+    <p id="confirmText"></p>
+  </div>
+  <div class="form-foot">
+    <button type="button" class="btn-quiet" id="confirmNo">Keep it</button>
+    <button type="button" class="btn-danger" id="confirmYes">Delete</button>
+  </div>
 </dialog>
 
 <script>
 (function () {
   "use strict";
 
-  /* ============ state ============ */
+  /* =========================================================
+     MODEL
+     board.columns[] = { id, name, mode: "sequence"|"parallel", timers[] }
+     timer           = { id, name, work, rest, rounds }   (seconds)
 
-  var blocks = [];
-  var seeded = false;      // showing starter examples, untouched
-  var touched = false;     // user edited before the store answered
-  var db = null;
-  var DOC = "timers/library";
-  var LS = "interval-stack-v1";
+     A SEQUENCE column runs as one queue: every timer, every round,
+     back to back. A PARALLEL column runs nothing as a group — each
+     timer starts on its own. Any number of runs go at once, so a
+     pomodoro queue and a four-hour print can share the board.
+     ========================================================= */
 
-  var S = { phases: [], idx: 0, remaining: 0, endAt: null, active: false, done: false, lastTick: -1 };
+  var board = { columns: [] };
+  var runs = Object.create(null);      // key -> run
+  var alarming = Object.create(null);  // key -> label
+  var live = Object.create(null);      // key -> live DOM nodes, rebuilt each render
+  var raf = null;
+  var db = null, touched = false;
+  var DOC = "timers/board", OLD_DOC = "timers/library";
+  var LS = "interval-stack-v2", OLD_LS = "interval-stack-v1";
 
   var el = {};
-  ["runner","sweep","whole","frac","readoutRow","phaseKind","blockName","roundLine","upNext",
-   "mainBtn","skipBtn","stopBtn","alarmBtn","controls","stack","totalLine","newBtn",
-   "runAllBtn","soundBtn","seedNote","editor","form","formTitle","fName","fWorkMin",
-   "fWorkSec","fRestMin","fRestSec","fRounds","cancelBtn","saveBtn"].forEach(function (id) {
-    el[id] = document.getElementById(id);
-  });
+  ["board","alarms","hintLine","soundBtn","newColBtn","editor","form","formTitle","fName",
+   "fStack","fWorkMin","fWorkSec","fRestMin","fRestSec","fRounds","cancelBtn","saveBtn",
+   "renamer","renameForm","rName","renameCancel","confirmer","confirmTitle","confirmText",
+   "confirmNo","confirmYes"].forEach(function (id) { el[id] = document.getElementById(id); });
 
-  var CIRC = 2 * Math.PI * 112;
-  el.sweep.style.strokeDasharray = CIRC;
+  var R = 112, CIRC = 2 * Math.PI * R;
 
-  /* ============ helpers ============ */
+  /* ================= helpers ================= */
 
-  function uid() { return "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function uid(p) { return (p || "x") + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
   function clock(ms) {
     if (!(ms > 0)) ms = 0;
     var tenths = Math.ceil(ms / 100);
     var sec = Math.floor(tenths / 10);
-    var h = Math.floor(sec / 3600);
-    var m = Math.floor((sec % 3600) / 60);
+    var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
     var whole = h
       ? h + ":" + String(m).padStart(2, "0") + ":" + String(sec % 60).padStart(2, "0")
       : m + ":" + String(sec % 60).padStart(2, "0");
@@ -379,30 +424,31 @@
     return m + ":" + String(s).padStart(2, "0");
   }
 
-  function blockSeconds(b) { return b.rounds * (b.work + b.rest); }
+  function timerSeconds(t) { return t.rounds * (t.work + t.rest); }
+  function columnSeconds(c) { return c.timers.reduce(function (n, t) { return n + timerSeconds(t); }, 0); }
 
-  function totalSeconds(list) {
-    return list.reduce(function (n, b) { return n + blockSeconds(b); }, 0);
-  }
-
-  /* Work then rest, per round. The very last rest of the whole session is
-     dropped so a session ends on a finished work interval, not on a
-     dangling break. Set rest to 0 to skip it entirely. */
+  /* Work then rest per round. The final rest of a run is dropped so a
+     run ends on finished work, never on a dangling break. */
   function buildPhases(list) {
     var ph = [];
-    list.forEach(function (b, bi) {
-      for (var r = 1; r <= b.rounds; r++) {
-        ph.push({ kind: "work", name: b.name, ms: b.work * 1000, round: r, rounds: b.rounds, id: b.id });
-        var last = bi === list.length - 1 && r === b.rounds;
-        if (b.rest > 0 && !last) {
-          ph.push({ kind: "rest", name: b.name, ms: b.rest * 1000, round: r, rounds: b.rounds, id: b.id });
+    list.forEach(function (t, ti) {
+      for (var r = 1; r <= t.rounds; r++) {
+        ph.push({ kind: "work", name: t.name, ms: t.work * 1000, round: r, rounds: t.rounds, id: t.id });
+        var last = ti === list.length - 1 && r === t.rounds;
+        if (t.rest > 0 && !last) {
+          ph.push({ kind: "rest", name: t.name, ms: t.rest * 1000, round: r, rounds: t.rounds, id: t.id });
         }
       }
     });
     return ph;
   }
 
-  /* ============ audio ============ */
+  function findColumn(id) {
+    for (var i = 0; i < board.columns.length; i++) if (board.columns[i].id === id) return board.columns[i];
+    return null;
+  }
+
+  /* ================= audio ================= */
 
   var soundOn = true, actx = null, alarmTimer = null;
 
@@ -419,32 +465,30 @@
   }
 
   function tone(freq, at, len, peak, type) {
-    var a = actx;
-    var osc = a.createOscillator(), g = a.createGain();
+    var a = actx, osc = a.createOscillator(), g = a.createGain();
     osc.type = type || "square";
     osc.frequency.setValueAtTime(freq, at);
     g.gain.setValueAtTime(0.0001, at);
     g.gain.exponentialRampToValueAtTime(peak, at + 0.012);
-    g.gain.setValueAtTime(peak, at + len - 0.05);
+    g.gain.setValueAtTime(peak, at + Math.max(0.02, len - 0.05));
     g.gain.exponentialRampToValueAtTime(0.0001, at + len);
     osc.connect(g).connect(a.destination);
-    osc.start(at);
-    osc.stop(at + len + 0.02);
+    osc.start(at); osc.stop(at + len + 0.02);
   }
 
-  function cue() {                       // phase change — short, unobtrusive
+  function cue() {
     if (!soundOn || !ctx()) return;
     var t = actx.currentTime;
-    tone(660, t, 0.10, 0.22, "triangle");
-    tone(880, t + 0.13, 0.14, 0.22, "triangle");
+    tone(660, t, 0.10, 0.20, "triangle");
+    tone(880, t + 0.13, 0.14, 0.20, "triangle");
   }
 
-  function tick() {                      // 3-2-1 countdown pips
+  function pip() {
     if (!soundOn || !ctx()) return;
-    tone(1046, actx.currentTime, 0.06, 0.14, "triangle");
+    tone(1046, actx.currentTime, 0.06, 0.13, "triangle");
   }
 
-  function burst() {                     // one round of the alarm
+  function burst() {
     if (!ctx()) return;
     var t = actx.currentTime;
     for (var i = 0; i < 5; i++) {
@@ -455,258 +499,623 @@
   }
 
   function startAlarm() {
-    stopAlarm();
-    if (!soundOn) return;
+    if (alarmTimer || !soundOn) return;
     burst();
-    alarmTimer = setInterval(burst, 2000);   // keeps going until dismissed
+    alarmTimer = setInterval(burst, 2000);   // rings until dismissed
   }
+  function stopAlarm() { if (alarmTimer) { clearInterval(alarmTimer); alarmTimer = null; } }
 
-  function stopAlarm() {
-    if (alarmTimer) { clearInterval(alarmTimer); alarmTimer = null; }
-  }
-
-  /* ============ screen wake lock (best effort) ============ */
+  /* ================= wake lock ================= */
 
   var wake = null;
   function keepAwake(on) {
     try {
       if (on && !wake && navigator.wakeLock) {
         navigator.wakeLock.request("screen").then(function (w) { wake = w; }, function () {});
-      } else if (!on && wake) {
-        wake.release(); wake = null;
-      }
+      } else if (!on && wake) { wake.release(); wake = null; }
     } catch (e) {}
   }
 
-  /* ============ persistence ============ */
+  /* ================= persistence ================= */
 
   function persist() {
     touched = true;
-    var body = { blocks: blocks, seeded: seeded, updatedAt: Date.now() };
+    var body = { columns: board.columns, updatedAt: Date.now() };
     try { localStorage.setItem(LS, JSON.stringify(body)); } catch (e) {}
     if (db) db.doc(DOC).set(body).catch(function () {});
   }
 
-  function sane(list) {
-    if (!Array.isArray(list)) return null;
+  function saneTimer(t) {
+    if (!t || typeof t !== "object") return null;
+    return {
+      id: String(t.id || uid("t")).slice(0, 40),
+      name: (String(t.name == null ? "" : t.name).slice(0, 40) || "Timer"),
+      work: Math.max(1, Math.min(86400, Math.round(Number(t.work) || 0))),
+      rest: Math.max(0, Math.min(86400, Math.round(Number(t.rest) || 0))),
+      rounds: Math.max(1, Math.min(99, Math.round(Number(t.rounds) || 1)))
+    };
+  }
+
+  function saneColumns(cols) {
+    if (!Array.isArray(cols)) return null;
     var out = [];
-    list.forEach(function (b) {
-      if (!b || typeof b !== "object") return;
-      var work = Math.max(1, Math.min(21600, Math.round(Number(b.work) || 0)));
+    cols.forEach(function (c) {
+      if (!c || typeof c !== "object") return;
+      var timers = [];
+      (Array.isArray(c.timers) ? c.timers : []).forEach(function (t) {
+        var s = saneTimer(t); if (s) timers.push(s);
+      });
       out.push({
-        id: String(b.id || uid()).slice(0, 40),
-        name: String(b.name == null ? "Timer" : b.name).slice(0, 40) || "Timer",
-        work: work,
-        rest: Math.max(0, Math.min(21600, Math.round(Number(b.rest) || 0))),
-        rounds: Math.max(1, Math.min(99, Math.round(Number(b.rounds) || 1)))
+        id: String(c.id || uid("c")).slice(0, 40),
+        name: (String(c.name == null ? "" : c.name).slice(0, 30) || "Stack"),
+        mode: c.mode === "parallel" ? "parallel" : "sequence",
+        timers: timers
       });
     });
-    return out;
+    return out.length ? out : null;
+  }
+
+  /* v1 kept a single flat list; fold it into one sequence stack. */
+  function migrate(oldBody) {
+    var timers = [];
+    (Array.isArray(oldBody && oldBody.blocks) ? oldBody.blocks : []).forEach(function (b) {
+      var s = saneTimer(b); if (s) timers.push(s);
+    });
+    if (!timers.length) return null;
+    return [{ id: uid("c"), name: "Session", mode: "sequence", timers: timers }];
   }
 
   function seeds() {
     return [
-      { id: uid(), name: "Quick test", work: 10, rest: 0, rounds: 1 },
-      { id: uid(), name: "Pomodoro", work: 1500, rest: 300, rounds: 4 },
-      { id: uid(), name: "Push circuit", work: 45, rest: 15, rounds: 8 }
+      { id: uid("c"), name: "Focus", mode: "sequence", timers: [
+        { id: uid("t"), name: "Quick test", work: 10, rest: 0, rounds: 1 },
+        { id: uid("t"), name: "Pomodoro", work: 1500, rest: 300, rounds: 4 }
+      ] },
+      { id: uid("c"), name: "Gym", mode: "sequence", timers: [
+        { id: uid("t"), name: "Push circuit", work: 45, rest: 15, rounds: 8 }
+      ] },
+      { id: uid("c"), name: "Background", mode: "parallel", timers: [
+        { id: uid("t"), name: "Oven", work: 2700, rest: 0, rounds: 1 },
+        { id: uid("t"), name: "3D print", work: 14400, rest: 0, rounds: 1 }
+      ] }
     ];
   }
 
   function loadLocal() {
     try {
       var raw = localStorage.getItem(LS);
-      if (!raw) return false;
-      var body = JSON.parse(raw);
-      var list = sane(body && body.blocks);
-      if (!list || !list.length) return false;
-      blocks = list;
-      seeded = !!(body && body.seeded);
-      return true;
-    } catch (e) { return false; }
+      if (raw) {
+        var cols = saneColumns((JSON.parse(raw) || {}).columns);
+        if (cols) { board.columns = cols; return true; }
+      }
+      var old = localStorage.getItem(OLD_LS);
+      if (old) {
+        var m = migrate(JSON.parse(old));
+        if (m) { board.columns = m; return true; }
+      }
+    } catch (e) {}
+    return false;
   }
 
-  if (!loadLocal()) { blocks = seeds(); seeded = true; }
+  if (!loadLocal()) board.columns = seeds();
 
-  /* The store answers later, if at all. Adopt it only when the viewer
-     hasn't already started editing this visit. */
+  /* The store answers later, if at all — and only wins if the viewer
+     hasn't started editing this visit. */
   if (window.claude && typeof window.claude.use === "function") {
     window.claude.use("db").then(function (store) {
       if (!store) return;
       db = store;
       return store.doc(DOC).get().then(function (snap) {
-        if (touched || !snap || !snap.exists) return;
-        var body = snap.data() || {};
-        var list = sane(body.blocks);
-        if (!list || !list.length) return;
-        blocks = list;
-        seeded = !!body.seeded;
-        if (!S.active) render();
+        if (touched) return;
+        var cols = snap && snap.exists ? saneColumns((snap.data() || {}).columns) : null;
+        if (cols) { board.columns = cols; render(); return; }
+        return store.doc(OLD_DOC).get().then(function (old) {   // v1 store
+          if (touched || !old || !old.exists) return;
+          var m = migrate(old.data() || {});
+          if (m) { board.columns = m; render(); persist(); }
+        });
       });
     }).catch(function () {});
   }
 
-  /* ============ rendering ============ */
+  /* ================= run engine ================= */
 
-  function phase() { return S.phases[S.idx] || null; }
+  function keyForColumn(c) { return "c:" + c.id; }
+  function keyForTimer(t) { return "t:" + t.id; }
 
-  function renderDial() {
-    var p = phase();
-    var ms, frac;
-    if (S.active && p) {
-      ms = S.endAt ? S.endAt - Date.now() : S.remaining;
-      if (!(ms > 0)) ms = 0;
-      frac = p.ms > 0 ? ms / p.ms : 0;
-    } else {
-      ms = totalSeconds(blocks) * 1000;
-      frac = 1;
-    }
-    var c = clock(ms);
-    el.whole.textContent = c.whole;
-    el.frac.textContent = c.frac;
-    el.readoutRow.className = "readout-row"
-      + (c.whole.length >= 7 ? " wider" : c.whole.length >= 5 ? " wide" : "");
-    el.sweep.style.strokeDashoffset = CIRC * (1 - Math.max(0, Math.min(1, frac)));
+  function begin(key, label, phases) {
+    if (!phases.length) return;
+    ctx();                                  // unlock audio on the click that got here
+    runs[key] = {
+      key: key, label: label, phases: phases, idx: 0,
+      remaining: phases[0].ms, endAt: null, done: false, lastTick: -1
+    };
+    resumeRun(runs[key]);
   }
 
-  function renderRunner() {
-    var p = phase();
-    el.runner.classList.toggle("is-rest", !!(S.active && p && p.kind === "rest"));
-    el.runner.classList.toggle("is-alarm", S.done);
-
-    if (S.done) {
-      el.phaseKind.textContent = "Done";
-      el.blockName.textContent = "Session complete";
-      el.roundLine.textContent = "";
-      el.upNext.textContent = "";
-    } else if (S.active && p) {
-      el.phaseKind.textContent = p.kind === "work" ? "Work" : "Rest";
-      el.blockName.textContent = p.name;
-      el.roundLine.textContent = p.rounds > 1 ? "Round " + p.round + " of " + p.rounds : "Single round";
-      var nxt = S.phases[S.idx + 1];
-      el.upNext.textContent = nxt
-        ? "Next — " + (nxt.kind === "work" ? nxt.name + (nxt.rounds > 1 ? " · round " + nxt.round : "") : "rest " + dur(nxt.ms / 1000))
-        : "Last interval";
-    } else {
-      el.phaseKind.textContent = "Ready";
-      el.blockName.textContent = blocks.length ? "Starts with " + blocks[0].name : "No timers yet";
-      el.roundLine.textContent = blocks.length
-        ? blocks.length + (blocks.length === 1 ? " timer · " : " timers · ") + buildPhases(blocks).length + " intervals"
-        : "";
-      el.upNext.textContent = blocks.length ? "Space starts and pauses" : "Add a timer to begin";
-    }
-
-    el.mainBtn.textContent = S.done ? "Again" : (!S.active ? "Start" : (S.endAt ? "Pause" : "Resume"));
-    el.mainBtn.disabled = !blocks.length;
-    el.skipBtn.disabled = !S.active || S.done;
-    el.stopBtn.disabled = !S.active;
-    el.alarmBtn.hidden = !S.done;
-    el.controls.hidden = S.done;
-    el.runAllBtn.disabled = !blocks.length || S.active;
+  function resumeRun(r) {
+    r.endAt = Date.now() + r.remaining;
+    keepAwake(true);
+    ensureLoop();
+    render();
   }
 
-  function renderLibrary() {
-    el.stack.textContent = "";
-    el.seedNote.hidden = !seeded || !blocks.length;
-    el.totalLine.textContent = blocks.length
-      ? blocks.length + (blocks.length === 1 ? " timer · " : " timers · ") + dur(totalSeconds(blocks)) + " total"
-      : "Nothing queued";
+  function pauseRun(r) {
+    r.remaining = Math.max(0, r.endAt - Date.now());
+    r.endAt = null;
+    if (!anyTicking()) keepAwake(false);
+    render();
+  }
 
-    if (!blocks.length) {
-      var empty = document.createElement("li");
-      empty.className = "empty";
-      empty.textContent = "No timers yet. Add one to build a session.";
-      el.stack.appendChild(empty);
-      return;
-    }
+  function skipRun(r) {
+    if (r.done) return;
+    if (r.idx + 1 >= r.phases.length) { finishRun(r); return; }
+    r.idx += 1; r.remaining = r.phases[r.idx].ms; r.lastTick = -1;
+    if (r.endAt) resumeRun(r); else render();
+  }
 
-    var current = S.active && phase() ? phase().id : null;
+  function advance(r) {
+    if (r.idx + 1 >= r.phases.length) { finishRun(r); return; }
+    r.idx += 1; r.remaining = r.phases[r.idx].ms; r.lastTick = -1;
+    r.endAt = Date.now() + r.remaining;
+    cue();
+    render();
+  }
 
-    blocks.forEach(function (b, i) {
-      var li = document.createElement("li");
-      li.className = "block" + (b.id === current ? " active" : "");
+  function finishRun(r) {
+    r.done = true; r.endAt = null; r.remaining = 0;
+    alarming[r.key] = r.label;
+    if (!anyTicking()) keepAwake(false);
+    render();
+    startAlarm();
+  }
 
-      var main = document.createElement("button");
-      main.type = "button";
-      main.className = "block-main";
-      main.title = "Edit " + b.name;
-      main.setAttribute("aria-label", "Edit " + b.name);
-      main.disabled = S.active;
-      main.addEventListener("click", function () { openEditor(b); });
+  function endRun(key) {
+    delete runs[key];
+    delete alarming[key];
+    if (!Object.keys(alarming).length) stopAlarm();
+    if (!anyTicking()) keepAwake(false);
+    render();
+  }
 
-      var name = document.createElement("div");
-      name.className = "block-name";
-      name.textContent = b.name;
+  function anyTicking() {
+    return Object.keys(runs).some(function (k) { return !!runs[k].endAt; });
+  }
 
-      var spec = document.createElement("div");
-      spec.className = "block-spec";
-      spec.textContent = dur(b.work) + " work"
-        + (b.rest ? " · " + dur(b.rest) + " rest" : " · no rest")
-        + (b.rounds > 1 ? " · ×" + b.rounds : "")
-        + " · " + dur(blockSeconds(b));
+  function ensureLoop() { if (!raf) raf = requestAnimationFrame(loop); }
 
-      main.appendChild(name);
-      main.appendChild(spec);
-
-      var acts = document.createElement("div");
-      acts.className = "block-acts";
-
-      var move = document.createElement("div");
-      move.className = "move-col";
-      move.appendChild(iconBtn("▲", "Move " + b.name + " up", i === 0 || S.active, function () { reorder(i, -1); }));
-      move.appendChild(iconBtn("▼", "Move " + b.name + " down", i === blocks.length - 1 || S.active, function () { reorder(i, 1); }));
-
-      acts.appendChild(move);
-      acts.appendChild(iconBtn("▶", "Run " + b.name + " on its own", S.active, function () { startSession([b]); }));
-      acts.appendChild(iconBtn("✕", "Delete " + b.name, S.active, function () { remove(b.id); }, true));
-
-      li.appendChild(main);
-      li.appendChild(acts);
-      el.stack.appendChild(li);
+  function loop() {
+    var now = Date.now(), ticking = false, advanced = false;
+    Object.keys(runs).forEach(function (k) {
+      var r = runs[k];
+      if (r.done || !r.endAt) return;
+      var left = r.endAt - now;
+      var w = Math.ceil(left / 1000);
+      if (w !== r.lastTick) {
+        if (w > 0 && w <= 3) pip();
+        r.lastTick = w;
+      }
+      if (left <= 0) { advance(r); advanced = true; }
+      else ticking = true;
     });
+    if (!advanced) paint();
+    raf = (ticking || anyTicking()) ? requestAnimationFrame(loop) : null;
+  }
+
+  /* Only the numbers move between phase changes — repaint those nodes
+     rather than rebuilding the board 60 times a second. */
+  function paint() {
+    Object.keys(live).forEach(function (k) {
+      var r = runs[k], nodes = live[k];
+      if (!r || !nodes) return;
+      var p = r.phases[r.idx];
+      var ms = r.done ? 0 : (r.endAt ? r.endAt - Date.now() : r.remaining);
+      if (!(ms > 0)) ms = 0;
+      var c = clock(ms);
+      nodes.whole.textContent = c.whole;
+      nodes.frac.textContent = c.frac;
+      var frac = p && p.ms > 0 ? Math.max(0, Math.min(1, ms / p.ms)) : 0;
+      if (nodes.row) nodes.row.className = "readout-row" + (c.whole.length >= 7 ? " wider" : c.whole.length >= 5 ? " wide" : "");
+      if (nodes.sweep) nodes.sweep.style.strokeDashoffset = CIRC * (1 - frac);
+      if (nodes.bar) nodes.bar.style.width = (frac * 100).toFixed(2) + "%";
+    });
+  }
+
+  /* ================= rendering ================= */
+
+  function makeDial(accentDone) {
+    var wrap = document.createElement("div");
+    wrap.className = "dial";
+    var ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 250 250");
+    svg.setAttribute("aria-hidden", "true");
+    var tr = document.createElementNS(ns, "circle");
+    tr.setAttribute("class", "track"); tr.setAttribute("cx", "125"); tr.setAttribute("cy", "125"); tr.setAttribute("r", String(R));
+    var sw = document.createElementNS(ns, "circle");
+    sw.setAttribute("class", "sweep"); sw.setAttribute("cx", "125"); sw.setAttribute("cy", "125"); sw.setAttribute("r", String(R));
+    sw.style.strokeDasharray = CIRC;
+    sw.style.strokeDashoffset = accentDone ? CIRC : 0;
+    svg.appendChild(tr); svg.appendChild(sw);
+
+    var ro = document.createElement("div");
+    ro.className = "readout";
+    ro.setAttribute("role", "timer");
+    var row = document.createElement("div");
+    row.className = "readout-row";
+    var whole = document.createElement("span"); whole.className = "whole"; whole.textContent = "0:00";
+    var frac = document.createElement("span"); frac.className = "frac"; frac.textContent = ".0";
+    row.appendChild(whole); row.appendChild(frac);
+    ro.appendChild(row);
+
+    wrap.appendChild(svg); wrap.appendChild(ro);
+    return { wrap: wrap, sweep: sw, whole: whole, frac: frac, row: row };
   }
 
   function iconBtn(glyph, label, disabled, fn, danger) {
     var b = document.createElement("button");
     b.type = "button";
     b.className = "icon-btn" + (danger ? " danger" : "");
-    b.textContent = glyph;
-    b.title = label;
+    b.textContent = glyph; b.title = label;
     b.setAttribute("aria-label", label);
     b.disabled = !!disabled;
     b.addEventListener("click", fn);
     return b;
   }
 
-  function render() { renderRunner(); renderLibrary(); renderDial(); }
+  function textBtn(text, cls, fn, disabled) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = cls; b.textContent = text;
+    b.disabled = !!disabled;
+    b.addEventListener("click", fn);
+    return b;
+  }
 
-  /* ============ library actions ============ */
+  function renderAlarms() {
+    var keys = Object.keys(alarming);
+    el.alarms.textContent = "";
+    el.alarms.hidden = !keys.length;
+    keys.forEach(function (k) {
+      var row = document.createElement("div");
+      row.className = "alarm-row";
+      var what = document.createElement("div");
+      what.className = "what";
+      what.textContent = alarming[k] + " finished";
+      row.appendChild(what);
+      row.appendChild(textBtn("Stop alarm", "btn-sm", function () { endRun(k); }));
+      el.alarms.appendChild(row);
+    });
+  }
 
-  function reorder(i, d) {
+  function renderRunner(col) {
+    var key = keyForColumn(col);
+    var r = runs[key];
+    var box = document.createElement("div");
+    box.className = "runner";
+
+    var p = r ? r.phases[r.idx] : null;
+    if (r && !r.done && p && p.kind === "rest") box.classList.add("is-rest");
+    if (r && r.done) box.classList.add("is-done");
+
+    var kind = document.createElement("div");
+    kind.className = "label runner-kind";
+    var name = document.createElement("div");
+    name.className = "runner-name";
+
+    if (r && r.done) { kind.textContent = "Done"; name.textContent = "Stack finished"; }
+    else if (r && p) { kind.textContent = p.kind === "work" ? "Work" : "Rest"; name.textContent = p.name; }
+    else {
+      kind.textContent = "Ready";
+      name.textContent = col.timers.length ? "Starts with " + col.timers[0].name : "Add a timer";
+    }
+
+    box.appendChild(kind);
+    box.appendChild(name);
+
+    var dial = makeDial(false);
+    if (!r) {                              // nothing running: show the queue's own length
+      var c0 = clock(columnSeconds(col) * 1000);
+      dial.whole.textContent = c0.whole;
+      dial.frac.textContent = c0.frac;
+      dial.row.className = "readout-row"
+        + (c0.whole.length >= 7 ? " wider" : c0.whole.length >= 5 ? " wide" : "");
+    }
+    box.appendChild(dial.wrap);
+
+    var meta = document.createElement("div");
+    meta.className = "runner-meta";
+    var round = document.createElement("div");
+    round.className = "label";
+    var next = document.createElement("div");
+    next.className = "runner-next";
+
+    if (r && r.done) { round.textContent = ""; next.textContent = ""; }
+    else if (r && p) {
+      round.textContent = p.rounds > 1 ? "Round " + p.round + " of " + p.rounds : " ";
+      var nx = r.phases[r.idx + 1];
+      next.textContent = nx
+        ? "Next — " + (nx.kind === "work" ? nx.name + (nx.rounds > 1 ? " · round " + nx.round : "") : "rest " + dur(nx.ms / 1000))
+        : "Last interval";
+    } else {
+      var ph = buildPhases(col.timers);
+      round.textContent = col.timers.length ? ph.length + (ph.length === 1 ? " interval" : " intervals") : " ";
+      next.textContent = col.timers.length ? dur(columnSeconds(col)) + " in total" : "";
+    }
+    meta.appendChild(round); meta.appendChild(next);
+    box.appendChild(meta);
+
+    var ctl = document.createElement("div");
+    ctl.className = "runner-ctl";
+    if (r && r.done) {
+      ctl.appendChild(textBtn("Stop alarm", "btn-solid", function () { endRun(key); }));
+    } else if (r) {
+      ctl.appendChild(textBtn(r.endAt ? "Pause" : "Resume", "btn-solid", function () {
+        if (r.endAt) pauseRun(r); else { ctx(); resumeRun(r); }
+      }));
+      ctl.appendChild(textBtn("Skip", "btn-quiet", function () { skipRun(r); }));
+      ctl.appendChild(textBtn("Stop", "btn-quiet", function () { endRun(key); }));
+    } else {
+      ctl.appendChild(textBtn("Start stack", "btn-solid", function () {
+        begin(key, col.name, buildPhases(col.timers));
+      }, !col.timers.length));
+    }
+    box.appendChild(ctl);
+
+    if (r) live[key] = { whole: dial.whole, frac: dial.frac, row: dial.row, sweep: dial.sweep };
+    return box;
+  }
+
+  function renderTile(col, t, i) {
+    var parallel = col.mode === "parallel";
+    var key = keyForTimer(t);
+    var r = parallel ? runs[key] : null;
+    var colRun = runs[keyForColumn(col)];
+    var activeInSeq = !parallel && colRun && !colRun.done && colRun.phases[colRun.idx] && colRun.phases[colRun.idx].id === t.id;
+
+    var li = document.createElement("li");
+    li.className = "tile" + (activeInSeq || (r && !r.done) ? " active" : "");
+
+    var top = document.createElement("div");
+    top.className = "tile-top";
+
+    var main = document.createElement("button");
+    main.type = "button"; main.className = "tile-main";
+    main.title = "Edit " + t.name;
+    main.setAttribute("aria-label", "Edit " + t.name);
+    main.disabled = !!(r || (!parallel && colRun));
+    main.addEventListener("click", function () { openEditor(col, t); });
+
+    var nm = document.createElement("div");
+    nm.className = "tile-name"; nm.textContent = t.name;
+    var spec = document.createElement("div");
+    spec.className = "tile-spec";
+    spec.textContent = dur(t.work) + (t.rest ? " / " + dur(t.rest) + " rest" : "")
+      + (t.rounds > 1 ? " · ×" + t.rounds : "")
+      + (t.rounds > 1 ? " · " + dur(timerSeconds(t)) : "");
+    main.appendChild(nm); main.appendChild(spec);
+    top.appendChild(main);
+
+    var acts = document.createElement("div");
+    acts.className = "tile-acts";
+    if (!parallel) {
+      var move = document.createElement("div");
+      move.className = "move-col";
+      move.appendChild(iconBtn("▲", "Move " + t.name + " up", i === 0 || !!colRun, function () { moveTimer(col, i, -1); }));
+      move.appendChild(iconBtn("▼", "Move " + t.name + " down", i === col.timers.length - 1 || !!colRun, function () { moveTimer(col, i, 1); }));
+      acts.appendChild(move);
+    }
+    acts.appendChild(iconBtn("✕", "Delete " + t.name, !!(r || (!parallel && colRun)), function () { deleteTimer(col, t.id); }, true));
+    top.appendChild(acts);
+    li.appendChild(top);
+
+    if (parallel) {
+      var wrap = document.createElement("div");
+      wrap.className = "tile-live";
+
+      if (r) {
+        var lrow = document.createElement("div");
+        lrow.className = "live-row";
+        var cl = document.createElement("div");
+        cl.className = "live-clock mono";
+        var whole = document.createElement("span"); whole.textContent = "0:00";
+        var frac = document.createElement("span"); frac.className = "frac"; frac.textContent = ".0";
+        cl.appendChild(whole); cl.appendChild(frac);
+        var note = document.createElement("div");
+        note.className = "live-note";
+        var pp = r.phases[r.idx];
+        note.textContent = r.done ? "Done" : (!r.endAt ? "Paused"
+          : (pp && pp.kind === "rest" ? "Rest" : (pp && pp.rounds > 1 ? "Round " + pp.round + "/" + pp.rounds : "Running")));
+        lrow.appendChild(cl); lrow.appendChild(note);
+
+        var bar = document.createElement("div");
+        bar.className = "bar";
+        var fill = document.createElement("i");
+        bar.appendChild(fill);
+
+        wrap.appendChild(lrow); wrap.appendChild(bar);
+        live[key] = { whole: whole, frac: frac, bar: fill };
+      }
+
+      var ctl = document.createElement("div");
+      ctl.className = "tile-ctl";
+      if (r && r.done) {
+        ctl.appendChild(textBtn("Stop alarm", "btn-solid btn-sm", function () { endRun(key); }));
+      } else if (r) {
+        ctl.appendChild(textBtn(r.endAt ? "Pause" : "Resume", "btn-solid btn-sm", function () {
+          if (r.endAt) pauseRun(r); else { ctx(); resumeRun(r); }
+        }));
+        ctl.appendChild(textBtn("Stop", "btn-quiet btn-sm", function () { endRun(key); }));
+      } else {
+        ctl.appendChild(textBtn("Start", "btn-solid btn-sm", function () {
+          begin(key, t.name, buildPhases([t]));
+        }));
+      }
+      wrap.appendChild(ctl);
+      li.appendChild(wrap);
+    }
+
+    return li;
+  }
+
+  function renderColumn(col, index) {
+    var wrap = document.createElement("section");
+    wrap.className = "column" + (col.mode === "parallel" ? " is-parallel" : "");
+    wrap.setAttribute("aria-label", col.name);
+
+    var running = col.mode === "parallel"
+      ? col.timers.some(function (t) { return !!runs[keyForTimer(t)]; })
+      : !!runs[keyForColumn(col)];
+    if (running) wrap.classList.add("is-running");
+
+    /* head */
+    var head = document.createElement("div");
+    head.className = "col-head";
+
+    var titleRow = document.createElement("div");
+    titleRow.className = "col-title-row";
+    var title = document.createElement("button");
+    title.type = "button"; title.className = "col-title"; title.textContent = col.name;
+    title.title = "Rename this stack";
+    title.setAttribute("aria-label", "Rename stack " + col.name);
+    title.addEventListener("click", function () { openRenamer(col); });
+    titleRow.appendChild(title);
+    titleRow.appendChild(iconBtn("‹", "Move stack left", index === 0, function () { moveColumn(index, -1); }));
+    titleRow.appendChild(iconBtn("›", "Move stack right", index === board.columns.length - 1, function () { moveColumn(index, 1); }));
+    titleRow.appendChild(iconBtn("✕", "Delete stack " + col.name, running, function () { askDeleteColumn(col); }, true));
+    head.appendChild(titleRow);
+
+    var sub = document.createElement("div");
+    sub.className = "col-sub";
+    var pill = document.createElement("button");
+    pill.type = "button"; pill.className = "mode-pill";
+    pill.textContent = col.mode === "parallel" ? "Parallel" : "In order";
+    pill.title = col.mode === "parallel"
+      ? "Each timer runs on its own — click to chain them instead"
+      : "Timers run back to back — click to make them independent";
+    pill.disabled = running;
+    pill.addEventListener("click", function () { toggleMode(col); });
+    sub.appendChild(pill);
+    var total = document.createElement("div");
+    total.className = "col-total";
+    total.textContent = col.timers.length
+      ? col.timers.length + (col.timers.length === 1 ? " timer" : " timers")
+        + (col.mode === "sequence" ? " · " + dur(columnSeconds(col)) : "")
+      : "empty";
+    sub.appendChild(total);
+    head.appendChild(sub);
+    wrap.appendChild(head);
+
+    /* sequence stacks get one runner for the whole queue */
+    if (col.mode === "sequence") wrap.appendChild(renderRunner(col));
+
+    /* tiles */
+    var list = document.createElement("ul");
+    list.className = "tiles";
+    if (!col.timers.length) {
+      var empty = document.createElement("li");
+      empty.className = "empty";
+      empty.textContent = col.mode === "parallel"
+        ? "No timers yet. Each one here runs on its own."
+        : "No timers yet. These will run back to back.";
+      list.appendChild(empty);
+    } else {
+      col.timers.forEach(function (t, i) { list.appendChild(renderTile(col, t, i)); });
+    }
+    wrap.appendChild(list);
+
+    var foot = document.createElement("div");
+    foot.className = "col-foot";
+    foot.appendChild(textBtn("+ Timer", "btn-quiet btn-sm", function () { openEditor(col, null); }));
+    wrap.appendChild(foot);
+
+    return wrap;
+  }
+
+  function render() {
+    live = Object.create(null);
+    renderAlarms();
+
+    el.board.textContent = "";
+    board.columns.forEach(function (col, i) { el.board.appendChild(renderColumn(col, i)); });
+
+    var add = document.createElement("button");
+    add.type = "button"; add.className = "add-column"; add.textContent = "+ New stack";
+    add.addEventListener("click", newColumn);
+    el.board.appendChild(add);
+
+    var running = Object.keys(runs).length;
+    el.hintLine.textContent = running
+      ? running + (running === 1 ? " timer running" : " timers running at once") + " — stacks keep their own clocks."
+      : "Click a stack name to rename it. “In order” chains its timers; “Parallel” runs each on its own.";
+
+    paint();
+  }
+
+  /* ================= board actions ================= */
+
+  function newColumn() {
+    var col = { id: uid("c"), name: "New stack", mode: "sequence", timers: [] };
+    board.columns.push(col);
+    persist(); render();
+    openRenamer(col);
+  }
+
+  function moveColumn(i, d) {
     var j = i + d;
-    if (j < 0 || j >= blocks.length) return;
-    var tmp = blocks[i]; blocks[i] = blocks[j]; blocks[j] = tmp;
-    seeded = false;
+    if (j < 0 || j >= board.columns.length) return;
+    var tmp = board.columns[i]; board.columns[i] = board.columns[j]; board.columns[j] = tmp;
     persist(); render();
   }
 
-  function remove(id) {
-    blocks = blocks.filter(function (b) { return b.id !== id; });
-    seeded = false;
+  function toggleMode(col) {
+    col.mode = col.mode === "parallel" ? "sequence" : "parallel";
+    /* clear any runs belonging to this stack under the old shape */
+    delete runs[keyForColumn(col)];
+    col.timers.forEach(function (t) { delete runs[keyForTimer(t)]; delete alarming[keyForTimer(t)]; });
+    delete alarming[keyForColumn(col)];
+    if (!Object.keys(alarming).length) stopAlarm();
     persist(); render();
   }
 
-  var editing = null;
+  function moveTimer(col, i, d) {
+    var j = i + d;
+    if (j < 0 || j >= col.timers.length) return;
+    var tmp = col.timers[i]; col.timers[i] = col.timers[j]; col.timers[j] = tmp;
+    persist(); render();
+  }
 
-  function openEditor(b) {
-    editing = b || null;
-    el.formTitle.textContent = b ? "Edit timer" : "New timer";
-    el.saveBtn.textContent = b ? "Save changes" : "Add timer";
-    el.fName.value = b ? b.name : "";
-    el.fWorkMin.value = b ? Math.floor(b.work / 60) : 0;
-    el.fWorkSec.value = b ? b.work % 60 : 30;
-    el.fRestMin.value = b ? Math.floor(b.rest / 60) : 0;
-    el.fRestSec.value = b ? b.rest % 60 : 15;
-    el.fRounds.value = b ? b.rounds : 1;
+  function deleteTimer(col, id) {
+    col.timers = col.timers.filter(function (t) { return t.id !== id; });
+    delete runs["t:" + id];
+    delete alarming["t:" + id];
+    if (!Object.keys(alarming).length) stopAlarm();
+    persist(); render();
+  }
+
+  /* ================= dialogs ================= */
+
+  var editing = null, editingCol = null, renaming = null, confirmFn = null;
+
+  function openEditor(col, t) {
+    editing = t || null; editingCol = col;
+    el.formTitle.textContent = t ? "Edit timer" : "New timer";
+    el.saveBtn.textContent = t ? "Save changes" : "Add timer";
+    el.fName.value = t ? t.name : "";
+    el.fWorkMin.value = t ? Math.floor(t.work / 60) : 0;
+    el.fWorkSec.value = t ? t.work % 60 : 30;
+    el.fRestMin.value = t ? Math.floor(t.rest / 60) : 0;
+    el.fRestSec.value = t ? t.rest % 60 : (col.mode === "parallel" ? 0 : 15);
+    el.fRounds.value = t ? t.rounds : 1;
+
+    el.fStack.textContent = "";
+    board.columns.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c.id;
+      o.textContent = c.name + (c.mode === "parallel" ? " (parallel)" : " (in order)");
+      if (c.id === col.id) o.selected = true;
+      el.fStack.appendChild(o);
+    });
+
     el.editor.showModal();
     el.fName.focus();
   }
@@ -719,146 +1128,96 @@
 
   el.form.addEventListener("submit", function (e) {
     e.preventDefault();
-    var work = num(el.fWorkMin, 180) * 60 + num(el.fWorkSec, 59);
+    var work = num(el.fWorkMin, 600) * 60 + num(el.fWorkSec, 59);
     if (work < 1) work = 1;                       // a zero-length interval can't run
     var body = {
       name: (el.fName.value || "").trim().slice(0, 40) || "Timer",
       work: work,
-      rest: num(el.fRestMin, 180) * 60 + num(el.fRestSec, 59),
+      rest: num(el.fRestMin, 600) * 60 + num(el.fRestSec, 59),
       rounds: Math.max(1, num(el.fRounds, 99))
     };
+    var target = findColumn(el.fStack.value) || editingCol;
+
     if (editing) {
       editing.name = body.name; editing.work = body.work;
       editing.rest = body.rest; editing.rounds = body.rounds;
+      if (target !== editingCol) {                 // moved to another stack
+        editingCol.timers = editingCol.timers.filter(function (t) { return t.id !== editing.id; });
+        target.timers.push(editing);
+      }
     } else {
-      blocks.push({ id: uid(), name: body.name, work: body.work, rest: body.rest, rounds: body.rounds });
+      target.timers.push({ id: uid("t"), name: body.name, work: body.work, rest: body.rest, rounds: body.rounds });
     }
-    seeded = false;
-    editing = null;
+    editing = null; editingCol = null;
     el.editor.close();
     persist(); render();
   });
 
-  el.cancelBtn.addEventListener("click", function () { editing = null; el.editor.close(); });
-  el.newBtn.addEventListener("click", function () { openEditor(null); });
+  el.cancelBtn.addEventListener("click", function () { editing = null; editingCol = null; el.editor.close(); });
 
-  /* ============ engine ============ */
-
-  var raf = null;
-
-  function startSession(list) {
-    var ph = buildPhases(list);
-    if (!ph.length) return;
-    stopAlarm();
-    ctx();                                   // unlock audio on this user gesture
-    S.phases = ph; S.idx = 0; S.remaining = ph[0].ms;
-    S.active = true; S.done = false; S.lastTick = -1;
-    keepAwake(true);
-    resume();
+  function openRenamer(col) {
+    renaming = col;
+    el.rName.value = col.name;
+    el.renamer.showModal();
+    el.rName.focus();
+    el.rName.select();
   }
 
-  function resume() {
-    S.endAt = Date.now() + S.remaining;
-    cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(loop);
-    render();
-  }
-
-  function pause() {
-    cancelAnimationFrame(raf);
-    S.remaining = Math.max(0, S.endAt - Date.now());
-    S.endAt = null;
-    keepAwake(false);
-    render();
-  }
-
-  function loop() {
-    var left = S.endAt - Date.now();
-
-    var whole = Math.ceil(left / 1000);
-    if (whole !== S.lastTick) {
-      if (whole > 0 && whole <= 3) tick();
-      S.lastTick = whole;
-    }
-
-    if (left <= 0) { advance(); return; }
-    renderDial();
-    raf = requestAnimationFrame(loop);
-  }
-
-  function advance() {
-    cancelAnimationFrame(raf);
-    if (S.idx + 1 >= S.phases.length) { finish(); return; }
-    S.idx += 1;
-    S.remaining = S.phases[S.idx].ms;
-    S.lastTick = -1;
-    cue();
-    resume();
-  }
-
-  function skip() {
-    if (!S.active || S.done) return;
-    cancelAnimationFrame(raf);
-    if (S.idx + 1 >= S.phases.length) { finish(); return; }
-    S.idx += 1;
-    S.remaining = S.phases[S.idx].ms;
-    S.lastTick = -1;
-    resume();
-  }
-
-  function finish() {
-    cancelAnimationFrame(raf);
-    S.endAt = null; S.remaining = 0; S.done = true;
-    keepAwake(false);
-    render();
-    startAlarm();
-  }
-
-  function stopSession() {
-    cancelAnimationFrame(raf);
-    stopAlarm();
-    S.phases = []; S.idx = 0; S.remaining = 0; S.endAt = null;
-    S.active = false; S.done = false; S.lastTick = -1;
-    keepAwake(false);
-    render();
-  }
-
-  /* ============ controls ============ */
-
-  el.mainBtn.addEventListener("click", function () {
-    if (S.done) { stopSession(); startSession(blocks); return; }
-    if (!S.active) { startSession(blocks); return; }
-    if (S.endAt) pause(); else { ctx(); keepAwake(true); resume(); }
+  el.renameForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (renaming) renaming.name = (el.rName.value || "").trim().slice(0, 30) || "Stack";
+    renaming = null;
+    el.renamer.close();
+    persist(); render();
   });
+  el.renameCancel.addEventListener("click", function () { renaming = null; el.renamer.close(); });
 
-  el.runAllBtn.addEventListener("click", function () { startSession(blocks); });
-  el.skipBtn.addEventListener("click", skip);
-  el.stopBtn.addEventListener("click", stopSession);
-  el.alarmBtn.addEventListener("click", stopSession);
+  function askDeleteColumn(col) {
+    el.confirmTitle.textContent = "Delete " + col.name;
+    el.confirmText.textContent = col.timers.length
+      ? "This removes the stack and its " + col.timers.length + (col.timers.length === 1 ? " timer." : " timers.")
+      : "This removes the empty stack.";
+    confirmFn = function () {
+      board.columns = board.columns.filter(function (c) { return c.id !== col.id; });
+      delete runs[keyForColumn(col)];
+      col.timers.forEach(function (t) { delete runs[keyForTimer(t)]; });
+      persist(); render();
+    };
+    el.confirmer.showModal();
+  }
+
+  el.confirmYes.addEventListener("click", function () {
+    var fn = confirmFn; confirmFn = null;
+    el.confirmer.close();
+    if (fn) fn();
+  });
+  el.confirmNo.addEventListener("click", function () { confirmFn = null; el.confirmer.close(); });
+
+  /* ================= chrome ================= */
+
+  el.newColBtn.addEventListener("click", newColumn);
 
   el.soundBtn.addEventListener("click", function () {
     soundOn = !soundOn;
     el.soundBtn.setAttribute("aria-pressed", String(soundOn));
     el.soundBtn.textContent = soundOn ? "Sound on" : "Sound off";
     if (!soundOn) stopAlarm();
-    else if (S.done) startAlarm();
+    else if (Object.keys(alarming).length) startAlarm();
   });
 
   document.addEventListener("keydown", function (e) {
-    if (el.editor.open) return;
+    if (el.editor.open || el.renamer.open || el.confirmer.open) return;
     var t = e.target;
-    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
-    if (e.code === "Space") { e.preventDefault(); el.mainBtn.click(); }
-    else if (e.key === "Escape" && S.done) stopSession();
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return;
+    if (e.key === "Escape" && Object.keys(alarming).length) {
+      Object.keys(alarming).forEach(endRun);
+    }
   });
 
-  /* A tab thrown into the background stops getting frames; the elapsed
-     time still comes from the timestamp, so catch up on return. */
+  /* A backgrounded tab stops getting frames; elapsed time comes from
+     the timestamps, so just catch up on return. */
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible" && S.active && S.endAt) {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(loop);
-    }
+    if (document.visibilityState === "visible" && anyTicking()) { raf = null; ensureLoop(); }
   });
 
   render();
