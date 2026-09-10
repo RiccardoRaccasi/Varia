@@ -124,7 +124,55 @@
     display: flex; gap: 14px; align-items: flex-start;
     overflow-x: auto; padding: 2px 20px 8px;
     scroll-snap-type: x proximity;
+    position: relative;               /* so a column's offsetLeft is board-relative */
   }
+
+  /* layout switch */
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .seg button {
+    border: none; border-radius: 0; background: transparent; color: var(--muted);
+    padding: 6px 10px; font-size: 11px; font-weight: 600; letter-spacing: .02em;
+  }
+  .seg button:hover { color: var(--ink); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  /* on Auto, show which of the two the width actually resolved to */
+  .seg button.is-effective { background: var(--surface-2); color: var(--ink); }
+
+  /* phone pager */
+  .pager {
+    display: flex; gap: 6px; overflow-x: auto;
+    padding: 0 14px 2px; scrollbar-width: none;
+  }
+  .pager::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: 0 0 auto; display: flex; align-items: baseline; gap: 7px;
+    background: var(--surface); border: 1px solid var(--line); color: var(--muted);
+    border-radius: 999px; padding: 7px 13px; font-size: 12px; font-weight: 600;
+  }
+  .chip.is-running { border-color: var(--seq); color: var(--ink); }
+  .chip[aria-current="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .chip-clock { font-size: 11px; font-weight: 700; }
+  .chip-clock .frac { font-size: .8em; font-weight: 400; opacity: .65; }
+
+  /* ---------- phone layout ---------- */
+  body[data-layout="phone"] .board {
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 14px;
+    padding: 2px 14px 8px; gap: 12px;
+  }
+  body[data-layout="phone"] .column,
+  body[data-layout="phone"] .add-column { flex: 0 0 calc(100% - 22px); }
+  body[data-layout="phone"] .add-column { height: 130px; }
+  body[data-layout="phone"] .column { padding: 14px 12px 14px; }
+  body[data-layout="phone"] .dial { width: min(240px, 62vw); }
+  body[data-layout="phone"] .runner-ctl button { padding: 13px 12px; font-size: 14px; }
+  body[data-layout="phone"] .tile-ctl button { padding: 11px 12px; font-size: 13px; }
+  body[data-layout="phone"] .tile { padding: 11px 9px 11px 11px; }
+  body[data-layout="phone"] .icon-btn { padding: 7px 9px; font-size: 13px; }
+  body[data-layout="phone"] .move-col .icon-btn { padding: 2px 8px; font-size: 10px; }
+  body[data-layout="phone"] .wordmark span { display: none; }
+  body[data-layout="phone"] #newColBtn { display: none; }
+  body[data-layout="phone"] .gutter { padding: 0 14px; }
   .column {
     --accent: var(--seq);
     flex: 0 0 300px; scroll-snap-align: start;
@@ -272,12 +320,19 @@
   <div class="topbar gutter">
     <div class="wordmark">Interval Stack <span>— stacks side by side</span></div>
     <div class="topbar-acts">
+      <div class="seg" role="group" aria-label="Layout">
+        <button type="button" id="segAuto" aria-pressed="true">Auto</button>
+        <button type="button" id="segBoard" aria-pressed="false">Board</button>
+        <button type="button" id="segPhone" aria-pressed="false">Phone</button>
+      </div>
       <button class="sound-toggle" id="soundBtn" aria-pressed="true">Sound on</button>
       <button class="btn-dark btn-sm" id="newColBtn">+ New stack</button>
     </div>
   </div>
 
   <div class="alarms gutter" id="alarms" hidden></div>
+
+  <div class="pager" id="pager" hidden></div>
 
   <div class="board" id="board"></div>
 
@@ -391,6 +446,9 @@
   var live = Object.create(null);      // key -> live DOM nodes, rebuilt each render
   var raf = null;
   var db = null, touched = false;
+  var liveTabs = [];                   // phone chips showing another stack's clock
+  var columnEls = [];                  // rendered column nodes, for the pager
+  var activeIndex = 0, scrollRaf = null;
   var DOC = "timers/board", OLD_DOC = "timers/library";
   var LS = "interval-stack-v2", OLD_LS = "interval-stack-v1";
 
@@ -398,7 +456,7 @@
   ["board","alarms","hintLine","soundBtn","newColBtn","editor","form","formTitle","fName",
    "fStack","fWorkMin","fWorkSec","fRestMin","fRestSec","fRounds","cancelBtn","saveBtn",
    "renamer","renameForm","rName","renameCancel","confirmer","confirmTitle","confirmText",
-   "confirmNo","confirmYes"].forEach(function (id) { el[id] = document.getElementById(id); });
+   "confirmNo","confirmYes","pager","segAuto","segBoard","segPhone"].forEach(function (id) { el[id] = document.getElementById(id); });
 
   var R = 112, CIRC = 2 * Math.PI * R;
 
@@ -441,6 +499,17 @@
       }
     });
     return ph;
+  }
+
+  function columnRuns(col) {
+    var out = [];
+    if (col.mode === "parallel") {
+      col.timers.forEach(function (t) { var r = runs[keyForTimer(t)]; if (r) out.push(r); });
+    } else {
+      var r = runs[keyForColumn(col)];
+      if (r) out.push(r);
+    }
+    return out;
   }
 
   function findColumn(id) {
@@ -718,6 +787,132 @@
       if (nodes.row) nodes.row.className = "readout-row" + (c.whole.length >= 7 ? " wider" : c.whole.length >= 5 ? " wide" : "");
       if (nodes.sweep) nodes.sweep.style.strokeDashoffset = CIRC * (1 - frac);
       if (nodes.bar) nodes.bar.style.width = (frac * 100).toFixed(2) + "%";
+    });
+
+    /* A phone shows one stack at a time, so each chip carries the
+       soonest finish in the stack it names — the oven stays visible
+       while you are looking at the workout. */
+    var now = Date.now();
+    liveTabs.forEach(function (tab) {
+      var col = findColumn(tab.colId);
+      if (!col) return;
+      var best = null;
+      columnRuns(col).forEach(function (r) {
+        var ms = r.done ? 0 : (r.endAt ? r.endAt - now : r.remaining);
+        if (!(ms > 0)) ms = 0;
+        if (best === null || ms < best) best = ms;
+      });
+      var c = clock(best || 0);
+      tab.whole.textContent = c.whole;
+      tab.frac.textContent = c.frac;
+    });
+  }
+
+  /* ================= layout ================= */
+
+  var LAYOUT_LS = "interval-stack-layout";
+  var layoutPref = "auto";
+  try {
+    var lp = localStorage.getItem(LAYOUT_LS);
+    if (lp === "auto" || lp === "board" || lp === "phone") layoutPref = lp;
+  } catch (e) {}
+
+  var narrow = window.matchMedia("(max-width: 760px)");
+
+  function effectiveLayout() {
+    return layoutPref === "auto" ? (narrow.matches ? "phone" : "board") : layoutPref;
+  }
+
+  function applyLayout() {
+    var eff = effectiveLayout();
+    document.body.setAttribute("data-layout", eff);
+    el.segBoard.classList.toggle("is-effective", layoutPref === "auto" && eff === "board");
+    el.segPhone.classList.toggle("is-effective", layoutPref === "auto" && eff === "phone");
+    el.segAuto.setAttribute("aria-pressed", String(layoutPref === "auto"));
+    el.segBoard.setAttribute("aria-pressed", String(layoutPref === "board"));
+    el.segPhone.setAttribute("aria-pressed", String(layoutPref === "phone"));
+  }
+
+  function setLayout(pref) {
+    layoutPref = pref;
+    try { localStorage.setItem(LAYOUT_LS, pref); } catch (e) {}
+    applyLayout();
+    render();
+    goToColumn(activeIndex, false);
+  }
+
+  el.segAuto.addEventListener("click", function () { setLayout("auto"); });
+  el.segBoard.addEventListener("click", function () { setLayout("board"); });
+  el.segPhone.addEventListener("click", function () { setLayout("phone"); });
+
+  function onWidthChange() { if (layoutPref === "auto") { applyLayout(); render(); } }
+  if (narrow.addEventListener) narrow.addEventListener("change", onWidthChange);
+  else if (narrow.addListener) narrow.addListener(onWidthChange);
+
+  function boardPad() {
+    return parseFloat(getComputedStyle(el.board).paddingLeft) || 0;
+  }
+
+  function goToColumn(i, smooth) {
+    var cel = columnEls[i];
+    if (!cel) return;
+    activeIndex = i;
+    el.board.scrollTo({ left: Math.max(0, cel.offsetLeft - boardPad()), behavior: smooth === false ? "auto" : "smooth" });
+    markChips();
+  }
+
+  function markChips() {
+    var chips = el.pager.children;
+    for (var i = 0; i < chips.length; i++) chips[i].setAttribute("aria-current", String(i === activeIndex));
+  }
+
+  function syncActive() {
+    scrollRaf = null;
+    if (document.body.getAttribute("data-layout") !== "phone") return;
+    var pad = boardPad(), x = el.board.scrollLeft, best = 0, bd = Infinity;
+    columnEls.forEach(function (cel, i) {
+      var d = Math.abs(cel.offsetLeft - pad - x);
+      if (d < bd) { bd = d; best = i; }
+    });
+    if (best !== activeIndex) { activeIndex = best; markChips(); }
+  }
+
+  el.board.addEventListener("scroll", function () {
+    if (!scrollRaf) scrollRaf = requestAnimationFrame(syncActive);
+  }, { passive: true });
+
+  function renderPager() {
+    var phone = document.body.getAttribute("data-layout") === "phone";
+    el.pager.textContent = "";
+    el.pager.hidden = !phone;
+    liveTabs = [];
+    if (!phone) return;
+
+    if (activeIndex >= board.columns.length) activeIndex = Math.max(0, board.columns.length - 1);
+
+    board.columns.forEach(function (col, i) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.setAttribute("aria-current", String(i === activeIndex));
+
+      var nm = document.createElement("span");
+      nm.textContent = col.name;
+      chip.appendChild(nm);
+
+      if (columnRuns(col).length) {
+        chip.classList.add("is-running");
+        var cl = document.createElement("span");
+        cl.className = "chip-clock mono";
+        var whole = document.createElement("span"); whole.textContent = "0:00";
+        var frac = document.createElement("span"); frac.className = "frac"; frac.textContent = ".0";
+        cl.appendChild(whole); cl.appendChild(frac);
+        chip.appendChild(cl);
+        liveTabs.push({ colId: col.id, whole: whole, frac: frac });
+      }
+
+      chip.addEventListener("click", function () { goToColumn(i); });
+      el.pager.appendChild(chip);
     });
   }
 
@@ -1035,18 +1230,33 @@
     live = Object.create(null);
     renderAlarms();
 
+    /* A phase change rebuilds the board; without this the swipe
+       position would snap back to the first stack every interval. */
+    var keepScroll = el.board.scrollLeft;
+
     el.board.textContent = "";
-    board.columns.forEach(function (col, i) { el.board.appendChild(renderColumn(col, i)); });
+    columnEls = [];
+    board.columns.forEach(function (col, i) {
+      var node = renderColumn(col, i);
+      columnEls.push(node);
+      el.board.appendChild(node);
+    });
 
     var add = document.createElement("button");
     add.type = "button"; add.className = "add-column"; add.textContent = "+ New stack";
     add.addEventListener("click", newColumn);
     el.board.appendChild(add);
 
+    el.board.scrollLeft = keepScroll;
+    renderPager();
+
     var running = Object.keys(runs).length;
+    var phone = document.body.getAttribute("data-layout") === "phone";
     el.hintLine.textContent = running
       ? running + (running === 1 ? " timer running" : " timers running at once") + " — stacks keep their own clocks."
-      : "Click a stack name to rename it. “In order” chains its timers; “Parallel” runs each on its own.";
+      : phone
+        ? "Swipe between stacks. Tap a stack name to rename it."
+        : "Click a stack name to rename it. “In order” chains its timers; “Parallel” runs each on its own.";
 
     paint();
   }
@@ -1220,6 +1430,7 @@
     if (document.visibilityState === "visible" && anyTicking()) { raf = null; ensureLoop(); }
   });
 
+  applyLayout();
   render();
 })();
 </script>
