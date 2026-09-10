@@ -62,7 +62,7 @@
     padding: 20px 0 56px;
   }
 
-  .app { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  .app { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
   .gutter { padding: 0 20px; }
 
   .label {
@@ -175,7 +175,7 @@
   body[data-layout="phone"] .gutter { padding: 0 14px; }
   .column {
     --accent: var(--seq);
-    flex: 0 0 300px; scroll-snap-align: start;
+    flex: 0 0 252px; scroll-snap-align: start;
     background: var(--surface); border: 1px solid var(--line);
     border-radius: 16px; box-shadow: var(--shadow);
     display: flex; flex-direction: column; gap: 12px;
@@ -231,7 +231,10 @@
 
   .runner-meta { text-align: center; display: flex; flex-direction: column; gap: 2px; }
   .runner-next { font-size: 11px; color: var(--muted); }
-  .runner-ctl { display: flex; gap: 6px; width: 100%; }
+  .runner-ctl { display: flex; gap: 5px; width: 100%; }
+  /* narrow columns: let the three controls share the width without
+     their side padding pushing the row past the column */
+  .runner-ctl button { padding: 10px 6px; }
   .runner-ctl .btn-solid { flex: 2; }
   .runner-ctl .btn-quiet { flex: 1; }
 
@@ -276,7 +279,7 @@
   .col-foot .btn-quiet { flex: 1; }
 
   .add-column {
-    flex: 0 0 176px; align-self: flex-start; height: 168px;
+    flex: 0 0 144px; align-self: flex-start; height: 168px;
     border: 1px dashed var(--line); border-radius: 16px;
     background: transparent; color: var(--muted); font-weight: 600; cursor: pointer;
   }
