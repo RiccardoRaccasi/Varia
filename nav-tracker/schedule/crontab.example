@@ -1,0 +1,11 @@
+# Daily NAV update at 10:00 — cron uses this machine's local timezone,
+# so on a machine set to Europe/Zurich this fires at 10:00 Swiss time.
+#
+# Install with:   crontab -e      (or run ./schedule/install.sh)
+# Check with:     crontab -l
+
+0 10 * * * /ABSOLUTE/PATH/TO/nav-tracker/run_daily.sh
+
+# Prices are only published on business days. To skip weekends instead,
+# use the weekday form:
+# 0 10 * * 1-5 /ABSOLUTE/PATH/TO/nav-tracker/run_daily.sh

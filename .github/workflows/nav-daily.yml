@@ -1,0 +1,61 @@
+name: Daily NAV update
+
+# Runs the nav-tracker routine at 10:00 Europe/Zurich and commits the new
+# observation. GitHub cron is UTC only, so both candidate hours are scheduled
+# and the job gates itself on the actual Swiss local hour — that lands on
+# 10:00 in both CET and CEST without a seasonal edit.
+on:
+  schedule:
+    - cron: "0 8 * * *"    # 10:00 Zurich while CEST (summer)
+    - cron: "0 9 * * *"    # 10:00 Zurich while CET  (winter)
+  workflow_dispatch:        # and on demand
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nav-daily
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Is it 10:00 in Zurich?
+        id: gate
+        run: |
+          hour="$(TZ=Europe/Zurich date +%H)"
+          if [ "${{ github.event_name }}" != "schedule" ] || [ "$hour" = "10" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping: it is ${hour}:00 in Zurich, not 10:00."
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.run == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        if: steps.gate.outputs.run == 'true'
+        run: python -m pip install -r nav-tracker/requirements.txt
+
+      - name: Fetch and append the current price
+        if: steps.gate.outputs.run == 'true'
+        run: python nav-tracker/nav_tracker.py update --json
+
+      - name: Commit the new observation
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          if git diff --quiet -- nav-tracker/data; then
+            echo "No new price today — nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add nav-tracker/data
+          git commit -m "Record NAV for $(TZ=Europe/Zurich date +%F)"
+          git push

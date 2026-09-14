@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily NAV update at 10:00 local time
+
+[Timer]
+OnCalendar=*-*-* 10:00:00
+# Run as soon as possible if the machine was off at 10:00.
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target
