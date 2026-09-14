@@ -1,0 +1,2 @@
+# nav_tracker needs one third-party package; everything else is stdlib.
+openpyxl>=3.1

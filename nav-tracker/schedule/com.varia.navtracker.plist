@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- macOS launchd agent: runs the daily update at 10:00 local time.
+     __RUN_DAILY__ is filled in by schedule/install.sh. -->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.varia.navtracker</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__RUN_DAILY__</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key><integer>10</integer>
+        <key>Minute</key><integer>0</integer>
+    </dict>
+
+    <!-- Catch up after the Mac was asleep or switched off at 10:00. -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>__LOG_DIR__/launchd.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>__LOG_DIR__/launchd.err.log</string>
+</dict>
+</plist>

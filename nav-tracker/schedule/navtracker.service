@@ -1,0 +1,8 @@
+[Unit]
+Description=Append the current fund NAV to the tracking workbook
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/ABSOLUTE/PATH/TO/nav-tracker/run_daily.sh
